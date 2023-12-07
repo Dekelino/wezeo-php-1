@@ -1,26 +1,46 @@
-
-
 <?php
 
 date_default_timezone_set("Europe/Bratislava");
-$timestamp = date("Y-m-d H:i:s");
+$timestamp =  date("Y-m-d H:i:s") /* "2023-12-07 23:59:59" */;
 
 $myFilePath = "logfile.txt";
 
-$lateArrival = strtotime($timestamp) > strtotime(date("Y-m-d") . " 08:00:00");
 
+function checkArrival($file)
+{
+    global $timestamp;
+
+    $timestampUnix = strtotime($timestamp); // strtotime - https://www.php.net/manual/en/function.strtotime.php
+
+    // Check if arrival time is between 20:00 and 24:00
+    $checkTimeFrom = strtotime('20:00:00');
+    $checkTimeTo = strtotime('23:59:59'); //00:00:00 is the new day
+
+    if ($timestampUnix >= $checkTimeFrom && $timestampUnix <= $checkTimeTo) {
+        die("Arrival between 20:00 and 24:00 is not allowed.");
+    }
+
+    $checkTime = strtotime('08:00:00');
+
+    if ($timestampUnix > $checkTime) {
+        fwrite($file, $timestamp . " " . "meškanie" . ";" . PHP_EOL);
+    } else {
+        fwrite($file, $timestamp . ";" . PHP_EOL);
+    } /*PHP_EOL - 
+    new line - https://stackoverflow.com/questions/128560/when-do-i-use-the-php-constant-php-eol
+    */
+}
 
 if (file_exists($myFilePath)) {
     $file = fopen($myFilePath, "a"); /*append mode - allow write data to the end of the file
-
     File modes - https://www.w3schools.com/php/php_file_open.asp */
 
-    fwrite($file, $timestamp . ";" . PHP_EOL); /*PHP_EOL - 
-    new line - https://stackoverflow.com/questions/128560/when-do-i-use-the-php-constant-php-eol
-    */
+    checkArrival($file);
     fclose($file);
 } else {
-    file_put_contents($myFilePath, $timestamp . ";"  . PHP_EOL);
+    $file = fopen($myFilePath, "a");
+    checkArrival($file);
+    fclose($file);
 }
 function getDatas()
 {
