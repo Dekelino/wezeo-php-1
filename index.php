@@ -23,30 +23,24 @@ function checkArrival($file)
     $checkTime = strtotime('08:00:00');
 
     if ($timestampUnix > $checkTime) {
-        fwrite($file, $timestamp . " " . "meškanie" . ";" . PHP_EOL);
+        $data = $timestamp . " " . "meškanie" . ";" . PHP_EOL;
     } else {
-        fwrite($file, $timestamp . ";" . PHP_EOL);
+        $data = $timestamp . ";" . PHP_EOL;
     } /*PHP_EOL - 
     new line - https://stackoverflow.com/questions/128560/when-do-i-use-the-php-constant-php-eol
     */
+    file_put_contents($file, $data, FILE_APPEND);
 }
 
 if (file_exists($myFilePath)) {
-    $file = fopen($myFilePath, "a"); /*append mode - allow write data to the end of the file
-    File modes - https://www.w3schools.com/php/php_file_open.asp */
 
-    checkArrival($file);
-    fclose($file);
+    checkArrival($myFilePath);
 } else {
-    $file = fopen($myFilePath, "a");
-    checkArrival($file);
-    fclose($file);
+    checkArrival($myFilePath);
 }
 function getDatas()
 {
-    $myfile = fopen("logfile.txt", "r") or die("Unable to open file!");
-    $logDatas = fread($myfile, filesize("logfile.txt"));
-    fclose($myfile);
+    $logDatas = file_get_contents("logfile.txt");
     $output = explode(';', $logDatas); // using delimeter ";" to split strings - https://www.tutorialkart.com/php/php-split-string-by-delimiter
     foreach ($output as $x) {
         echo $x;
@@ -71,7 +65,7 @@ function getDatas()
     <h1> Last timestamp : <?php echo $timestamp; ?></h1>
     <p>Log data:</p>
 
-    <?php $datas = getDatas() ?>
+    <?php getDatas() ?>
 
 </body>
 
